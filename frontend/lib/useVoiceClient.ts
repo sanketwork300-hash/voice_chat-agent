@@ -115,17 +115,58 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+/** Loudness meters on the two audio tracks, read by the page's animation loop rather than through React state. */
+class LevelMeter {
+  private context: AudioContext | null = null;
+  private analysers: Partial<Record<"local" | "remote", AnalyserNode>> = {};
+  private buffer = new Uint8Array(512);
+
+  attach(side: "local" | "remote", track: MediaStreamTrack) {
+    try {
+      this.context ??= new AudioContext();
+      void this.context.resume().catch(() => undefined);
+      const analyser = this.context.createAnalyser();
+      analyser.fftSize = 512;
+      // Analysed only; the page plays the agent's audio through its own element.
+      this.context.createMediaStreamSource(new MediaStream([track])).connect(analyser);
+      this.analysers[side] = analyser;
+    } catch {
+      // Without Web Audio the call still works; the orb just does not follow the voices.
+    }
+  }
+
+  /** Loudness from 0 to 1 (RMS of the waveform, scaled so speech fills most of the range). */
+  read(side: "local" | "remote"): number {
+    const analyser = this.analysers[side];
+    if (!analyser) return 0;
+    analyser.getByteTimeDomainData(this.buffer);
+    let sum = 0;
+    for (const sample of this.buffer) sum += ((sample - 128) / 128) ** 2;
+    return Math.min(1, Math.sqrt(sum / this.buffer.length) * 4);
+  }
+
+  close() {
+    void this.context?.close().catch(() => undefined);
+    this.context = null;
+    this.analysers = {};
+  }
+}
+
 export function useVoiceClient() {
   const [state, dispatch] = useReducer(reducer, initial);
   const clientRef = useRef<PipecatClient | null>(null);
   const speakerRef = useRef<HTMLAudioElement | null>(null); // plays the agent's audio track
+  const meterRef = useRef(new LevelMeter());
 
   const stop = useCallback(() => {
     clientRef.current?.disconnect();
     clientRef.current = null;
     if (speakerRef.current) speakerRef.current.srcObject = null;
+    meterRef.current.close();
     dispatch({ type: "ended" });
   }, []);
+
+  const level = useCallback((side: "local" | "remote") => meterRef.current.read(side), []);
 
   const start = useCallback(async () => {
     if (clientRef.current) return;
@@ -137,7 +178,9 @@ export function useVoiceClient() {
       callbacks: {
         onTrackStarted: (track, participant) => {
           // The transport hands over the agent's audio track; nothing plays it unless the page does.
-          if (track.kind !== "audio" || participant?.local) return;
+          if (track.kind !== "audio") return;
+          meterRef.current.attach(participant?.local ? "local" : "remote", track);
+          if (participant?.local) return;
           const speaker = speakerRef.current ?? (speakerRef.current = new Audio());
           speaker.autoplay = true;
           speaker.srcObject = new MediaStream([track]);
@@ -146,6 +189,7 @@ export function useVoiceClient() {
         onBotReady: () => dispatch({ type: "status", status: "listening" }),
         onDisconnected: () => {
           clientRef.current = null;
+          meterRef.current.close();
           dispatch({ type: "ended" });
         },
         onUserTranscript: (data: TranscriptData) => {
@@ -168,14 +212,15 @@ export function useVoiceClient() {
     }
   }, []);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    const meter = meterRef.current;
+    return () => {
       void clientRef.current?.disconnect();
-    },
-    [],
-  );
+      meter.close();
+    };
+  }, []);
 
-  return { ...state, start, stop };
+  return { ...state, start, stop, level };
 }
 
 function describe(error: unknown): string {

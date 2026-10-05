@@ -209,6 +209,17 @@ Decisions:
 
 Verified: in headless Chrome, "Talk to a human" after the first SSH message produced the fixed handoff sentence, the status "Handed to a support engineer", a disabled button, and on the debug page the escalation with trigger `customer_request` and its handoff (problem statement, protocol `ssh`, turn 2), plus the entry in "Recent escalations". Prometheus reports the backend target up and `escalations_total{trigger="customer_request"} 1`; the Grafana dashboard renders all 12 panels with live data.
 
+### After Milestone 8 — interface refresh and README
+
+Built:
+
+- Frontend restyle: a dark-first "night ops" theme (indigo base, ice-cyan and violet signals, Sora type) with a light variant; a shared glass header (`components/AppHeader.tsx`) with Chat / Voice tabs (plus Debug / Evaluation when `NEXT_PUBLIC_DEBUG_UI=1`); one staggered entrance on page load; messages slide in from their side; a streaming caret, animated thinking indicator, spinning running checks, and a light sweeping the border of a proposed change while it waits for an answer.
+- Voice page: a central orb whose glow and rings follow the loudness of the microphone and the agent's audio (Web Audio analysers in `useVoiceClient`, read by an animation frame loop, not React state), a waveform under it, and a layout that shrinks the orb once the transcript starts.
+- Debug and evaluation pages use the same panels; evaluation meters fill on load. All motion stops under `prefers-reduced-motion`.
+- README: animated SVG banner, architecture diagram, and turn-flow diagram in `docs/assets/`, screenshots of the new UI, long reference sections collapsed, and the full 200-scenario run added to the results (run `20261005-093125-fbb420`: 188 of 200 passed, 0 write-safety violations, 84.9 minutes).
+
+No flags were added or changed.
+
 ## Remaining phases
 
 None: all eight milestones are done. Known limits and ideas that were deliberately left out are listed per milestone above and in the README's "Known limits" and "Troubleshooting" sections.

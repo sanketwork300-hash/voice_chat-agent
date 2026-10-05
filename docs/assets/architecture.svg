@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" width="1200" height="540" role="img" aria-labelledby="title desc">
+  <title id="title">Architecture</title>
+  <desc id="desc">The Next.js browser app talks to one FastAPI backend over WebSocket, WebRTC, and HTTP. The backend runs the LangGraph SupportAgent, calls Ollama on the host, reaches FakeCloud through boto3, and keeps state in Postgres with pgvector. Prometheus and Grafana scrape its metrics.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#6ce4ff" stroke-opacity="0.05" />
+    </pattern>
+    <linearGradient id="edge" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1200" y2="540">
+      <stop offset="0" stop-color="#6ce4ff" />
+      <stop offset="1" stop-color="#9d8cff" />
+    </linearGradient>
+    <clipPath id="card"><rect width="1200" height="540" rx="24" /></clipPath>
+  </defs>
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .box { fill: #0d1325; stroke: #222b46; stroke-width: 1.5; }
+    .inner { fill: #141b32; stroke: #2a3456; }
+    .agent { fill: #10263a; stroke: #6ce4ff; stroke-opacity: .7; }
+    .h { font-size: 16px; font-weight: 600; fill: #e6ebff; }
+    .s { font-size: 13px; fill: #8a93b5; }
+    .l { font-size: 12px; fill: #6ce4ff; }
+    .wire { fill: none; stroke: url(#edge); stroke-width: 2; stroke-dasharray: 5 7; animation: flow 1.1s linear infinite; }
+    .wire.back { animation-direction: reverse; }
+    .wire.quiet { stroke: #3a4670; animation-duration: 2.4s; }
+    @keyframes flow { to { stroke-dashoffset: -24; } }
+    .pulse { animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 50% { stroke-opacity: .25; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+
+  <g clip-path="url(#card)">
+    <rect width="1200" height="540" fill="#060a16" />
+    <rect width="1200" height="540" fill="url(#grid)" />
+
+    <!-- Browser -->
+    <rect class="box" x="30" y="60" width="220" height="270" rx="16" />
+    <text class="h" x="50" y="92">Browser</text>
+    <text class="s" x="50" y="112">Next.js on :3000</text>
+    <g class="mono" font-size="14" fill="#e6ebff">
+      <rect class="inner" x="46" y="130" width="188" height="36" rx="9" /><text x="62" y="153">/  chat</text>
+      <rect class="inner" x="46" y="174" width="188" height="36" rx="9" /><text x="62" y="197">/voice  call</text>
+      <rect class="inner" x="46" y="218" width="188" height="36" rx="9" /><text x="62" y="241">/debug</text>
+      <rect class="inner" x="46" y="262" width="188" height="36" rx="9" /><text x="62" y="285">/evaluation</text>
+    </g>
+
+    <!-- Browser to backend -->
+    <path class="wire" d="M234 148H400" />
+    <path class="wire back" d="M234 192H400" />
+    <path class="wire quiet" d="M234 258H400" />
+    <text class="l" x="266" y="140">WebSocket</text>
+    <text class="l" x="266" y="184">WebRTC + RTVI</text>
+    <text class="l" x="266" y="250">HTTP</text>
+
+    <!-- Backend -->
+    <rect class="box" x="400" y="40" width="520" height="310" rx="18" />
+    <text class="h" x="420" y="72">Backend</text>
+    <text class="s" x="420" y="92">FastAPI, one process, :8010</text>
+
+    <rect class="inner" x="420" y="128" width="160" height="40" rx="10" />
+    <text class="mono" x="436" y="153" font-size="14" fill="#e6ebff">api/chat</text>
+    <rect class="inner" x="420" y="174" width="160" height="54" rx="10" />
+    <text class="mono" x="436" y="196" font-size="14" fill="#e6ebff">voice pipeline</text>
+    <text class="s" x="436" y="216" font-size="12">whisper, VAD, piper</text>
+    <rect class="inner" x="420" y="238" width="160" height="40" rx="10" />
+    <text class="mono" x="436" y="263" font-size="14" fill="#e6ebff">debug, evaluation</text>
+
+    <path class="wire" d="M580 148H612" />
+    <path class="wire" d="M580 200H612" />
+    <path class="wire quiet" d="M580 258H612" />
+
+    <rect class="agent pulse" x="612" y="96" width="290" height="132" rx="14" />
+    <text class="h" x="632" y="126">SupportAgent</text>
+    <text class="s" x="632" y="146">LangGraph, checkpointed in Postgres</text>
+    <text class="mono" x="632" y="178" font-size="12" fill="#b9c4ea">intake → classify → investigate</text>
+    <text class="mono" x="632" y="198" font-size="12" fill="#b9c4ea">→ diagnose → explain → propose</text>
+    <text class="mono" x="632" y="218" font-size="12" fill="#b9c4ea">→ execute → verify</text>
+
+    <rect class="inner" x="612" y="252" width="136" height="76" rx="12" />
+    <text class="h" x="628" y="280" font-size="15">ToolGateway</text>
+    <text class="s" x="628" y="300" font-size="12">validates, audits,</text>
+    <text class="s" x="628" y="316" font-size="12">stores proposals</text>
+    <rect class="inner" x="766" y="252" width="136" height="76" rx="12" />
+    <text class="h" x="782" y="280" font-size="15">Knowledge</text>
+    <text class="s" x="782" y="300" font-size="12">and Store: RAG,</text>
+    <text class="s" x="782" y="316" font-size="12">state, audit log</text>
+
+    <path class="wire" d="M680 228V252" />
+    <path class="wire" d="M834 228V252" />
+
+    <!-- Ollama on the host -->
+    <path class="wire back" d="M902 162H970" />
+    <text class="l" x="914" y="154">HTTP</text>
+    <rect class="box" x="970" y="100" width="200" height="124" rx="16" />
+    <text class="h" x="990" y="132">Ollama</text>
+    <text class="s" x="990" y="152">on the host</text>
+    <text class="mono" x="990" y="182" font-size="13" fill="#e6ebff">qwen3:4b-instruct</text>
+    <text class="mono" x="990" y="202" font-size="13" fill="#8a93b5">qwen3:1.7b fallback</text>
+
+    <!-- Data plane -->
+    <path class="wire" d="M680 328V420" />
+    <path class="wire" d="M834 328C834 380 830 380 830 420" />
+    <path class="wire quiet" d="M920 300C1000 300 1060 340 1060 420" />
+    <text class="l" x="690" y="380">boto3</text>
+    <text class="l" x="844" y="380">SQL, pgvector</text>
+    <text class="l" x="972" y="336">/metrics</text>
+
+    <rect class="box" x="560" y="420" width="220" height="92" rx="16" />
+    <text class="h" x="580" y="450">FakeCloud :4566</text>
+    <text class="s" x="580" y="472">simulated AWS account</text>
+    <text class="mono" x="580" y="494" font-size="12" fill="#8a93b5">EC2  S3  IAM  Lambda  CW</text>
+
+    <rect class="box" x="800" y="420" width="190" height="92" rx="16" />
+    <text class="h" x="818" y="450">Postgres 17</text>
+    <text class="s" x="818" y="472">pgvector :5432</text>
+    <text class="s" x="818" y="494">state, chunks, runs</text>
+
+    <rect class="box" x="1004" y="420" width="166" height="92" rx="16" stroke-dasharray="5 4" />
+    <text class="h" x="1022" y="450">Prometheus</text>
+    <text class="s" x="1022" y="472">and Grafana</text>
+    <text class="s" x="1022" y="494">optional profile</text>
+
+    <rect class="box" x="30" y="420" width="510" height="92" rx="16" fill="#0a0f1e" />
+    <text class="s" x="50" y="452">Runs offline after the first start: Whisper, Piper, Silero VAD</text>
+    <text class="s" x="50" y="474">and the embedding model load in-process from local caches.</text>
+    <text class="s" x="50" y="496">No GPU required.</text>
+  </g>
+  <rect x="0.5" y="0.5" width="1199" height="539" rx="24" fill="none" stroke="#222b46" />
+</svg>

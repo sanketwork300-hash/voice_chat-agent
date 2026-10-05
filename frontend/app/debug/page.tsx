@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import AppHeader from "@/components/AppHeader";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ReactNode, Suspense, useCallback, useEffect, useState } from "react";
+import { CSSProperties, ReactNode, Suspense, useCallback, useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_BACKEND_HTTP_URL ?? "http://localhost:8010";
 const REFRESH_MS = 2000;
@@ -132,22 +132,16 @@ function Debug() {
   }, [refresh, live]);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-7xl flex-col gap-4 p-4 text-sm">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-        <div>
-          <h1 className="text-lg font-semibold">Agent debug</h1>
-          <p className="text-muted">
-            What the agent knew and did, per conversation.{" "}
-            <Link href="/" className="underline">
-              Back to chat
-            </Link>
-          </p>
-        </div>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
+    <div className="mx-auto flex min-h-dvh w-full max-w-7xl flex-col gap-4 px-3 pb-6 text-sm sm:px-4">
+      <AppHeader title="Agent debug" wide />
+      <div className="rise flex flex-wrap items-center justify-between gap-3" style={{ "--i": 1 } as CSSProperties}>
+        <p className="text-muted">What the agent knew and did, per conversation.</p>
+        <label className="flex items-center gap-2 text-muted">
+          <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="accent-accent" />
+          <span className={`signal-dot inline-block size-1.5 rounded-full bg-current ${live ? "text-success" : "text-muted"}`} data-live={live} aria-hidden />
           Refresh every {REFRESH_MS / 1000} s
         </label>
-      </header>
+      </div>
 
       {error && (
         <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2" role="alert">
@@ -156,7 +150,7 @@ function Debug() {
       )}
 
       <div className="grid gap-4 lg:grid-cols-[18rem_1fr]">
-        <nav aria-label="Conversations" className="flex flex-col gap-1">
+        <nav aria-label="Conversations" className="rise flex flex-col gap-1.5 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto" style={{ "--i": 2 } as CSSProperties}>
           <h2 className="font-semibold">Conversations</h2>
           {rows.length === 0 && <p className="text-muted">None yet.</p>}
           {rows.map((row) => (
@@ -164,8 +158,8 @@ function Debug() {
               key={row.conversation_id}
               type="button"
               onClick={() => router.replace(`/debug?c=${row.conversation_id}`)}
-              className={`rounded-lg border px-3 py-2 text-left hover:bg-surface ${
-                row.conversation_id === selected ? "border-accent" : "border-border"
+              className={`glass rounded-xl px-3 py-2 text-left transition hover:border-accent/50 ${
+                row.conversation_id === selected ? "!border-accent shadow-[0_0_24px_-10px_var(--glow)]" : ""
               }`}
             >
               <span className="block font-mono text-xs">{row.conversation_id.slice(0, 12)}</span>
@@ -177,7 +171,7 @@ function Debug() {
           ))}
         </nav>
 
-        <main className="flex min-w-0 flex-col gap-4">
+        <main className="rise flex min-w-0 flex-col gap-4" style={{ "--i": 3 } as CSSProperties}>
           {detail ? (
             <Conversation detail={detail} />
           ) : (
@@ -265,7 +259,7 @@ function Conversation({ detail }: { detail: Detail }) {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="text-xs uppercase text-muted">
+              <thead className="text-xs text-muted">
                 <tr>
                   {["id", "turn", "stage", "asked by", "tool", "arguments", "result", "ms"].map((h) => (
                     <th key={h} className="px-2 py-1 font-medium">
@@ -371,7 +365,7 @@ function Conversation({ detail }: { detail: Detail }) {
                 <span className="rounded bg-warning/20 px-1 text-xs">{e.trigger}</span>
                 <span>{e.reason}</span>
               </p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted">Handoff for the engineer</p>
+              <p className="mt-2 text-xs font-semibold text-accent">Handoff for the engineer</p>
               <Fields
                 fields={{
                   problem: e.handoff.problem_statement || null,
@@ -426,8 +420,11 @@ function Conversation({ detail }: { detail: Detail }) {
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-xl border border-border p-4">
-      <h2 className="mb-2 font-semibold">{title}</h2>
+    <section className="glass rounded-2xl p-4">
+      <h2 className="mb-3 flex items-center gap-2 font-semibold">
+        <span className="h-3.5 w-0.5 rounded-full bg-gradient-to-b from-accent to-accent-2" aria-hidden />
+        {title}
+      </h2>
       {children}
     </section>
   );
@@ -453,7 +450,7 @@ function Json({ value, open = false }: { value: unknown; open?: boolean }) {
   return (
     <details open={open} className="font-mono text-xs">
       <summary className="cursor-pointer text-muted">{text.replace(/\s+/g, " ").slice(0, 60)}…</summary>
-      <pre className="mt-1 max-h-72 overflow-auto whitespace-pre-wrap rounded bg-surface p-2">{text}</pre>
+      <pre className="mt-1 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-surface-2/60 p-2">{text}</pre>
     </details>
   );
 }

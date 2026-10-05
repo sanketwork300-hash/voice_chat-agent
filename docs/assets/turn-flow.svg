@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 230" width="1200" height="230" role="img" aria-labelledby="title desc">
+  <title id="title">One troubleshooting turn</title>
+  <desc id="desc">Classify, investigate, diagnose, explain, propose, the customer confirms, execute, verify. A change only happens after the customer's confirmation.</desc>
+  <defs>
+    <linearGradient id="line" gradientUnits="userSpaceOnUse" x1="96" y1="0" x2="1090" y2="0">
+      <stop offset="0" stop-color="#6ce4ff" />
+      <stop offset="1" stop-color="#9d8cff" />
+    </linearGradient>
+    <filter id="soft" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6" /></filter>
+    <clipPath id="card"><rect width="1200" height="230" rx="20" /></clipPath>
+  </defs>
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .node { fill: #0d1325; stroke: #222b46; stroke-width: 1.5; animation: lit 6.8s linear infinite; }
+    @keyframes lit {
+      0% { stroke: #6ce4ff; fill: #10263a; }
+      14% { stroke: #222b46; fill: #0d1325; }
+      100% { stroke: #222b46; fill: #0d1325; }
+    }
+    .gate { stroke: #9d8cff; stroke-dasharray: 5 4; animation-name: gate; }
+    @keyframes gate {
+      0% { stroke: #e6ebff; fill: #1d1840; }
+      14% { stroke: #9d8cff; fill: #120f2a; }
+      100% { stroke: #9d8cff; fill: #120f2a; }
+    }
+    .flow { stroke-dasharray: 4 8; animation: dash 1s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -12; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+
+  <g clip-path="url(#card)">
+    <rect width="1200" height="230" fill="#060a16" />
+    <text x="34" y="44" font-size="15" fill="#8a93b5">One troubleshooting turn: who does what</text>
+
+    <path class="flow" d="M96 118H1090" stroke="url(#line)" stroke-width="2" fill="none" />
+
+    <!-- The turn travelling through the steps -->
+    <circle r="9" fill="#6ce4ff" opacity="0.6" filter="url(#soft)">
+      <animateMotion dur="6.8s" repeatCount="indefinite" path="M96 118H1090" keyTimes="0;0.882;1" keyPoints="0;1;1" calcMode="linear" />
+    </circle>
+    <circle r="4" fill="#e9fbff">
+      <animateMotion dur="6.8s" repeatCount="indefinite" path="M96 118H1090" keyTimes="0;0.882;1" keyPoints="0;1;1" calcMode="linear" />
+    </circle>
+    <g font-size="15" font-weight="600" fill="#e6ebff" text-anchor="middle">
+      <rect class="node" x="34" y="94" width="124" height="48" rx="12" style="animation-delay:0s" />
+      <text x="96" y="123">Classify</text>
+      <rect class="node" x="176" y="94" width="124" height="48" rx="12" style="animation-delay:.857s" />
+      <text x="238" y="123">Investigate</text>
+      <rect class="node" x="318" y="94" width="124" height="48" rx="12" style="animation-delay:1.714s" />
+      <text x="380" y="123">Diagnose</text>
+      <rect class="node" x="460" y="94" width="124" height="48" rx="12" style="animation-delay:2.571s" />
+      <text x="522" y="123">Explain</text>
+      <rect class="node" x="602" y="94" width="124" height="48" rx="12" style="animation-delay:3.428s" />
+      <text x="664" y="123">Propose</text>
+      <rect class="node gate" x="744" y="94" width="124" height="48" rx="12" style="animation-delay:4.285s" />
+      <text x="806" y="123">You confirm</text>
+      <rect class="node" x="886" y="94" width="124" height="48" rx="12" style="animation-delay:5.142s" />
+      <text x="948" y="123">Execute</text>
+      <rect class="node" x="1028" y="94" width="124" height="48" rx="12" style="animation-delay:6s" />
+      <text x="1090" y="123">Verify</text>
+    </g>
+
+    <g font-size="13" fill="#8a93b5" text-anchor="middle">
+      <text x="96" y="170">model labels,</text><text x="96" y="188">code checks</text>
+      <text x="238" y="170">model picks tools,</text><text x="238" y="188">code adds the rest</text>
+      <text x="380" y="170">code decides</text><text x="380" y="188">from tool results</text>
+      <text x="522" y="170">model writes</text><text x="522" y="188">the reply</text>
+      <text x="664" y="170">code builds it,</text><text x="664" y="188">gateway stores it</text>
+      <text x="806" y="170" fill="#b9afff">button or a</text><text x="806" y="188" fill="#b9afff">plain “yes”</text>
+      <text x="948" y="170">exactly the</text><text x="948" y="188">stored arguments</text>
+      <text x="1090" y="170">a read tool</text><text x="1090" y="188">checks the result</text>
+    </g>
+
+  </g>
+  <rect x="0.5" y="0.5" width="1199" height="229" rx="20" fill="none" stroke="#222b46" />
+</svg>

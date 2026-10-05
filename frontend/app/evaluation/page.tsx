@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import AppHeader from "@/components/AppHeader";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Fragment, ReactNode, Suspense, useEffect, useState } from "react";
+import { CSSProperties, Fragment, ReactNode, Suspense, useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_BACKEND_HTTP_URL ?? "http://localhost:8010";
 
@@ -117,17 +117,11 @@ function Evaluation() {
   }, [runId]);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-6 p-4 text-sm">
-      <header className="border-b border-border pb-3">
-        <h1 className="text-lg font-semibold">Evaluation</h1>
-        <p className="text-muted">
-          Scenario runs against the agent with the real model and FakeCloud. Every number is computed from a stored
-          run.{" "}
-          <Link href="/" className="underline">
-            Back to chat
-          </Link>
-        </p>
-      </header>
+    <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-6 px-3 pb-8 text-sm sm:px-4">
+      <AppHeader title="Evaluation" wide />
+      <p className="rise text-muted" style={{ "--i": 1 } as CSSProperties}>
+        Scenario runs against the agent with the real model and FakeCloud. Every number is computed from a stored run.
+      </p>
 
       {error && (
         <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2" role="alert">
@@ -141,12 +135,12 @@ function Evaluation() {
       )}
 
       {runs && runs.length > 0 && (
-        <label className="flex flex-wrap items-center gap-2">
+        <label className="rise flex flex-wrap items-center gap-2" style={{ "--i": 2 } as CSSProperties}>
           <span className="text-muted">Run</span>
           <select
             value={runId ?? ""}
             onChange={(e) => router.replace(`/evaluation?run=${e.target.value}`)}
-            className="rounded-md border border-border bg-background px-2 py-1"
+            className="glass max-w-full rounded-lg px-2.5 py-1.5 outline-none focus:border-accent"
           >
             {runs.map((run) => (
               <option key={run.run_id} value={run.run_id}>
@@ -169,12 +163,13 @@ function RunView({ run, results }: { run: Run; results: Result[] }) {
   const violations = metrics.write_safety_violations;
   return (
     <>
-      <section className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" aria-label="Summary">
-        <div className="rounded-xl border border-border p-5">
+      <section className="rise grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" aria-label="Summary" style={{ "--i": 3 } as CSSProperties}>
+        <div className="glass relative overflow-hidden rounded-2xl p-5">
+          <div className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-accent/15 blur-3xl" aria-hidden />
           <p className="text-muted">Scenarios passed</p>
-          <p className="text-6xl font-semibold leading-tight">
+          <p className="bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-6xl font-semibold leading-tight tracking-tight text-transparent">
             {passed.passed}
-            <span className="text-2xl font-normal text-muted"> of {passed.applicable}</span>
+            <span className="text-2xl font-normal text-muted [-webkit-text-fill-color:var(--muted)]"> of {passed.applicable}</span>
           </p>
           <Meter rate={passed.rate} label="Scenarios passed" />
           <p className="mt-3 text-muted">
@@ -203,13 +198,13 @@ function RunView({ run, results }: { run: Run; results: Result[] }) {
         </div>
       </section>
 
-      <section aria-label="Accuracy by check">
+      <section aria-label="Accuracy by check" className="rise" style={{ "--i": 4 } as CSSProperties}>
         <h2 className="mb-2 font-semibold">Accuracy by check</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {METRICS.map(([key, label]) => {
             const rate = metrics.rates[key];
             return (
-              <div key={key} className="rounded-xl border border-border p-4">
+              <div key={key} className="glass rounded-2xl p-4">
                 <p className="text-muted">{label}</p>
                 <p className="text-2xl font-semibold">{percent(rate.rate)}</p>
                 <Meter rate={rate.rate} label={label} />
@@ -222,7 +217,7 @@ function RunView({ run, results }: { run: Run; results: Result[] }) {
         </div>
       </section>
 
-      <section aria-label="Passed by service">
+      <section aria-label="Passed by service" className="rise" style={{ "--i": 5 } as CSSProperties}>
         <h2 className="mb-2 font-semibold">Passed by service</h2>
         <table className="w-full max-w-xl text-left">
           <tbody>
@@ -256,7 +251,7 @@ function Meter({ rate, label }: { rate: number | null; label: string }) {
   const value = rate === null ? 0 : Math.round(rate * 100);
   return (
     <div
-      className="mt-2 h-2 w-full overflow-hidden rounded-full bg-accent/20"
+      className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-accent/15"
       role="meter"
       aria-label={label}
       aria-valuemin={0}
@@ -264,16 +259,16 @@ function Meter({ rate, label }: { rate: number | null; label: string }) {
       aria-valuenow={value}
       title={rate === null ? "Does not apply" : `${value}%`}
     >
-      <div className="h-full rounded-full bg-accent" style={{ width: `${value}%` }} />
+      <div className="meter-fill h-full rounded-full" style={{ width: `${value}%` }} />
     </div>
   );
 }
 
 function Tile({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <div className="rounded-xl border border-border p-4">
+    <div className="glass rounded-2xl p-4">
       <p className="text-muted">{label}</p>
-      <p className="text-2xl font-semibold">{value}</p>
+      <p className="text-2xl font-semibold tracking-tight">{value}</p>
       <p className="text-xs text-muted">{note}</p>
     </div>
   );
@@ -282,7 +277,7 @@ function Tile({ label, value, note }: { label: string; value: string; note: stri
 /** A tile whose state matters: the state is given by an icon and words, with color only as reinforcement. */
 function StatusTile({ label, value, good, note }: { label: string; value: string; good: boolean; note: string }) {
   return (
-    <div className={`rounded-xl border p-4 ${good ? "border-border" : "border-danger"}`}>
+    <div className={`glass rounded-2xl p-4 ${good ? "" : "!border-danger"}`}>
       <p className="text-muted">{label}</p>
       <p className="flex items-baseline gap-2 text-2xl font-semibold">
         {value}
@@ -302,7 +297,7 @@ function ResultsTable({ results }: { results: Result[] }) {
   const shown = onlyFailed ? results.filter((r) => !r.passed) : results;
 
   return (
-    <section aria-label="Scenarios">
+    <section aria-label="Scenarios" className="rise" style={{ "--i": 6 } as CSSProperties}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-semibold">Scenarios</h2>
         <label className="flex items-center gap-2">
@@ -310,9 +305,9 @@ function ResultsTable({ results }: { results: Result[] }) {
           Only failed ({failed})
         </label>
       </div>
-      <div className="overflow-x-auto">
+      <div className="glass overflow-x-auto rounded-2xl p-2">
         <table className="w-full text-left">
-          <thead className="text-xs uppercase text-muted">
+          <thead className="text-xs text-muted">
             <tr>
               {["Scenario", "Service", "Customer behaviour", "Result", "Failed checks", "Root cause found", "Turns", "Seconds"].map(
                 (heading) => (
@@ -331,7 +326,7 @@ function ResultsTable({ results }: { results: Result[] }) {
               const isOpen = open === result.scenario_id;
               return (
                 <Fragment key={result.scenario_id}>
-                  <tr className="border-t border-border align-top">
+                  <tr className="border-t border-border align-top transition-colors hover:bg-surface-2/50">
                     <td className="px-2 py-1.5">
                       <button
                         type="button"
@@ -354,7 +349,7 @@ function ResultsTable({ results }: { results: Result[] }) {
                     <td className="px-2 py-1.5 tabular-nums">{result.outcome.duration_s.toFixed(1)}</td>
                   </tr>
                   {isOpen && (
-                    <tr className="border-t border-border bg-surface">
+                    <tr className="border-t border-border bg-surface-2/40">
                       <td colSpan={8} className="px-3 py-3">
                         <ScenarioDetail result={result} />
                       </td>
@@ -451,5 +446,5 @@ function ScenarioDetail({ result }: { result: Result }) {
 }
 
 function DetailHeading({ children }: { children: ReactNode }) {
-  return <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{children}</h3>;
+  return <h3 className="mb-1 text-xs font-semibold text-accent">{children}</h3>;
 }
