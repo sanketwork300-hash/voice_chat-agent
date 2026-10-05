@@ -1,0 +1,36 @@
+[project]
+name = "cloud-support-agent"
+version = "0.1.0"
+description = "Stateful cloud-support voice + chat agent over a simulated AWS backend"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "boto3>=1.40",
+    "fastapi>=0.115",
+    "fastembed>=0.5",
+    "httpx>=0.27",
+    "langgraph>=1.0",
+    "langgraph-checkpoint-postgres>=3.0",
+    "pipecat-ai[silero,webrtc,whisper]>=1.12",
+    "piper-tts>=1.8",
+    "prometheus-client>=0.21",
+    "psutil>=6.0",
+    "psycopg[binary,pool]>=3.2",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "pyyaml>=6.0",
+    "uvicorn[standard]>=0.34",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["fakecloud: needs a running FakeCloud and resets the simulated account"]
+addopts = "-m 'not fakecloud'"

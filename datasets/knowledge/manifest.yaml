@@ -1,0 +1,121 @@
+# Pages ingested into the knowledge base by scripts/ingest_docs.py.
+#
+# Source: the archived `awsdocs` repositories on GitHub, each pinned to the last
+# commit that still contains the documentation (the final commit of each
+# repository deleted it). `source_date` is the date of that commit. The pages are
+# downloaded into datasets/knowledge/corpus/ (not committed) and are a snapshot:
+# treat them as background troubleshooting knowledge, not as current prices or limits.
+#
+# `category` is free text used as chunk metadata. Add a page by adding a line here
+# and running `make ingest`; removing a line removes its chunks on the next run.
+
+source: aws_documentation
+
+repositories:
+  - repo: awsdocs/amazon-ec2-user-guide
+    commit: e3707c431483ec0ffffcabebd36cf799ba682cd0
+    source_date: 2023-06-15
+    service: ec2
+    license: CC-BY-SA-4.0
+    documents:
+      - {file: TroubleshootingInstancesConnecting.md, category: connectivity}
+      - {file: connection-prereqs.md, category: connectivity}
+      - {file: AccessingInstancesLinux.md, category: connectivity}
+      - {file: create-key-pairs.md, category: connectivity}
+      - {file: authorizing-access-to-an-instance.md, category: security-groups}
+      - {file: ec2-security-groups.md, category: security-groups}
+      - {file: security-group-rules.md, category: security-groups}
+      - {file: security-group-rules-reference.md, category: security-groups}
+      - {file: working-with-security-groups.md, category: security-groups}
+      - {file: ec2-instance-lifecycle.md, category: lifecycle}
+      - {file: Stop_Start.md, category: lifecycle}
+      - {file: ec2-instance-reboot.md, category: lifecycle}
+      - {file: TroubleshootingInstancesStopping.md, category: lifecycle}
+      - {file: troubleshooting-launch.md, category: lifecycle}
+      - {file: monitoring-system-instance-status-check.md, category: health}
+      - {file: TroubleshootingInstances.md, category: health}
+      - {file: viewing_metrics_with_cloudwatch.md, category: performance}
+      - {file: burstable-performance-instances-monitoring-cpu-credits.md, category: performance}
+
+  - repo: awsdocs/amazon-s3-userguide
+    commit: cc53dd6a44d3aa1d654e6d3705a0a7550f20fd2a
+    source_date: 2023-06-15
+    service: s3
+    license: CC-BY-SA-4.0
+    documents:
+      - {file: troubleshoot-403-errors.md, category: access}
+      - {file: troubleshooting.md, category: access}
+      - {file: s3-access-control.md, category: access}
+      - {file: access-control-overview.md, category: access}
+      - {file: bucket-policies.md, category: bucket-policy}
+      - {file: add-bucket-policy.md, category: bucket-policy}
+      - {file: example-bucket-policies.md, category: bucket-policy}
+      - {file: access-policy-language-overview.md, category: bucket-policy}
+      - {file: bucketnamingrules.md, category: buckets}
+      - {file: upload-objects.md, category: objects}
+      - {file: download-objects.md, category: objects}
+
+  - repo: awsdocs/aws-lambda-developer-guide
+    commit: 03f7fcb0b771f031f7cb3aa43e8b18407c00b3a8
+    source_date: 2023-10-30
+    service: lambda
+    license: CC-BY-SA-4.0
+    documents:
+      - {file: lambda-troubleshooting.md, category: troubleshooting}
+      - {file: troubleshooting-invocation.md, category: troubleshooting}
+      - {file: troubleshooting-execution.md, category: troubleshooting}
+      - {file: troubleshooting-deployment.md, category: troubleshooting}
+      - {file: troubleshooting-networking.md, category: troubleshooting}
+      - {file: configuration-function-common.md, category: configuration}
+      - {file: invocation-retries.md, category: invocation}
+      - {file: lambda-intro-execution-role.md, category: permissions}
+      - {file: lambda-permissions.md, category: permissions}
+      - {file: access-control-resource-based.md, category: permissions}
+      - {file: monitoring-cloudwatchlogs.md, category: monitoring}
+      - {file: monitoring-metrics.md, category: monitoring}
+
+  - repo: awsdocs/iam-user-guide
+    commit: e2b8637a825b9f292bb04af61277d067dfcc5676
+    source_date: 2023-06-15
+    service: iam
+    license: unclear (see LICENSES.md)
+    documents:
+      - {file: troubleshoot_access-denied.md, category: troubleshooting}
+      - {file: troubleshoot_general.md, category: troubleshooting}
+      - {file: troubleshoot_policies.md, category: troubleshooting}
+      - {file: troubleshoot_roles.md, category: troubleshooting}
+      - {file: troubleshoot_iam-s3.md, category: troubleshooting}
+      - {file: troubleshoot_iam-ec2.md, category: troubleshooting}
+      - {file: reference_policies_evaluation-logic.md, category: policies}
+      - {file: access_policies.md, category: policies}
+      - {file: access_policies_testing-policies.md, category: policies}
+
+  - repo: awsdocs/amazon-cloudwatch-user-guide
+    commit: cc40332fd9cd65366e991a6fd68654b2875588cc
+    source_date: 2023-06-15
+    service: cloudwatch
+    license: CC-BY-SA-4.0
+    documents:
+      - {file: AlarmThatSendsEmail.md, category: alarms}
+      - {file: ConsoleAlarms.md, category: alarms}
+      - {file: US_AlarmAtThresholdEC2.md, category: alarms}
+      - {file: UsingAlarmActions.md, category: alarms}
+      - {file: Edit-CloudWatch-Alarm.md, category: alarms}
+      - {file: cloudwatch_concepts.md, category: metrics}
+      - {file: working_with_metrics.md, category: metrics}
+      - {file: viewing_metrics_with_cloudwatch.md, category: metrics}
+      - {file: graph_a_metric.md, category: metrics}
+
+  - repo: awsdocs/aws-cost-management-user-guide
+    commit: a3d0766bd0e916b66f76bcb6c04c27ef01724cc6
+    source_date: 2023-06-08
+    service: billing
+    license: CC-BY-SA-4.0
+    documents:
+      - {file: billing-what-is.md, category: billing}
+      - {file: billing-getting-started.md, category: billing}
+      - {file: getting-viewing-bill.md, category: billing}
+      - {file: view-billing-dashboard.md, category: billing}
+      - {file: checklistforunwantedcharges.md, category: charges}
+      - {file: billing-free-tier.md, category: free-tier}
+      - {file: tracking-free-tier-usage.md, category: free-tier}

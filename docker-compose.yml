@@ -1,0 +1,113 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: support
+      POSTGRES_PASSWORD: support
+      POSTGRES_DB: support
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support -d support"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # The Docker socket is deliberately not mounted: without a container runtime
+  # FakeCloud runs EC2 as a metadata-only control plane, which is all the
+  # read/diagnose tools need and keeps memory use low.
+  fakecloud:
+    # Pinned: `latest` is rebuilt daily and the fidelity probe results depend on the build.
+    image: ghcr.io/faiscadev/fakecloud@sha256:f35b53886d84f9434df9e050e221edbdadd186b0777b8677e49bc2f5fd128fb2
+    environment:
+      FAKECLOUD_LOG: info
+      FAKECLOUD_IAM: strict
+    ports:
+      - "127.0.0.1:4566:4566"
+    healthcheck:
+      test: ["CMD", "fakecloud", "healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # The application services use the host network: the voice page needs the
+  # browser to reach the backend's WebRTC ports directly, Ollama listens on the
+  # host, and Postgres/FakeCloud publish their ports on the host anyway.
+  # `make up` starts only postgres and fakecloud; `docker compose up` starts these too.
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    network_mode: host
+    environment:
+      BACKEND_HOST: 0.0.0.0
+      DATABASE_URL: postgresql+psycopg://support:support@localhost:5432/support
+      AWS_ENDPOINT_URL: http://localhost:4566
+      LLM_BASE_URL: http://localhost:11434
+      EMBEDDING_CACHE_DIR: /root/.cache/fastembed
+      PIPER_CACHE_DIR: /root/.cache/pipecat/piper
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # The speech and embedding models, shared with the host so nothing downloads twice.
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+      - ${HOME}/.cache/fastembed:/root/.cache/fastembed
+      - ${HOME}/.cache/pipecat:/root/.cache/pipecat
+    depends_on:
+      postgres:
+        condition: service_healthy
+      fakecloud:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8010/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+  frontend:
+    build:
+      context: ./frontend
+    network_mode: host
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # `docker compose --profile observability up -d prometheus grafana`
+  # Grafana: http://localhost:3001 (anonymous admin), dashboard "Cloud Support Agent".
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: ["observability"]
+    network_mode: host
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
+  grafana:
+    image: grafana/grafana:12.3.1
+    profiles: ["observability"]
+    network_mode: host
+    environment:
+      GF_SERVER_HTTP_PORT: "3001"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  pgdata:
+  prometheus-data:
+  grafana-data:

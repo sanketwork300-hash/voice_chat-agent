@@ -1,0 +1,657 @@
+[
+  {
+    "scenario_id": "CONV-VAGUE",
+    "service": "ec2",
+    "variation": "vague",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "worker-04",
+          "state": "stopped",
+          "open_ports": [
+            22,
+            80
+          ]
+        }
+      }
+    ],
+    "user_message": "My instance seems to be dead.",
+    "user_facts": {
+      "instance": "worker-04",
+      "protocol": "ssh"
+    },
+    "confirm_via": "button",
+    "intents": [
+      "ec2_instance_down",
+      "ec2_connectivity"
+    ],
+    "expected_tools": [
+      [
+        "ec2_get_instance",
+        "ec2_get_instance_status",
+        "ec2_list_instances"
+      ]
+    ],
+    "expected_identifiers": {
+      "instance_id": "{vm.instance_id}"
+    },
+    "expected_root_causes": [
+      "EC2_INSTANCE_STOPPED"
+    ],
+    "expected_resolution": "START_INSTANCE",
+    "post_condition": {
+      "type": "instance_state",
+      "instance_id": "{vm.instance_id}",
+      "states": [
+        "running",
+        "pending"
+      ]
+    }
+  },
+  {
+    "scenario_id": "CONV-MISSING-DETAILS",
+    "service": "ec2",
+    "variation": "missing_details",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "batch-03",
+          "open_ports": [
+            80,
+            443
+          ]
+        }
+      }
+    ],
+    "user_message": "I can't SSH into my EC2 server.",
+    "user_facts": {
+      "instance": "batch-03",
+      "protocol": "ssh",
+      "source_cidr": "203.0.113.10"
+    },
+    "intents": [
+      "ec2_connectivity",
+      "ec2_security_group"
+    ],
+    "expected_tools": [
+      [
+        "ec2_get_instance",
+        "ec2_get_instance_status",
+        "ec2_list_instances"
+      ],
+      [
+        "ec2_get_security_group_rules"
+      ]
+    ],
+    "expected_identifiers": {
+      "instance_id": "{vm.instance_id}"
+    },
+    "expected_root_causes": [
+      "EC2_SG_SSH_BLOCKED"
+    ],
+    "expected_resolution": "ADD_INGRESS_RULE",
+    "post_condition": {
+      "type": "ingress_rule",
+      "group_id": "{vm.group_id}",
+      "port": 22,
+      "cidr": "203.0.113.10/32",
+      "present": true
+    }
+  },
+  {
+    "scenario_id": "CONV-WRONG-TERMS",
+    "service": "ec2",
+    "variation": "wrong_terms",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "batch-03",
+          "open_ports": [
+            80,
+            443
+          ]
+        }
+      }
+    ],
+    "user_message": "The firewall on my VM batch-03 won't let me in over ssh.",
+    "user_facts": {
+      "instance": "batch-03",
+      "protocol": "ssh",
+      "source_cidr": "203.0.113.10"
+    },
+    "confirm_via": "button",
+    "intents": [
+      "ec2_connectivity",
+      "ec2_security_group"
+    ],
+    "expected_tools": [
+      [
+        "ec2_get_instance",
+        "ec2_get_instance_status",
+        "ec2_list_instances"
+      ],
+      [
+        "ec2_get_security_group_rules"
+      ]
+    ],
+    "expected_identifiers": {
+      "instance_id": "{vm.instance_id}"
+    },
+    "expected_root_causes": [
+      "EC2_SG_SSH_BLOCKED"
+    ],
+    "expected_resolution": "ADD_INGRESS_RULE",
+    "post_condition": {
+      "type": "ingress_rule",
+      "group_id": "{vm.group_id}",
+      "port": 22,
+      "cidr": "203.0.113.10/32",
+      "present": true
+    }
+  },
+  {
+    "scenario_id": "CONV-INTERJECTION",
+    "service": "ec2",
+    "variation": "interjection",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "web-01",
+          "open_ports": [
+            80,
+            443
+          ]
+        }
+      }
+    ],
+    "user_message": "SSH to my instance web-01 times out.",
+    "user_facts": {
+      "instance": "web-01",
+      "protocol": "ssh",
+      "source_cidr": "198.51.100.7"
+    },
+    "interjection": "By the way, what is a security group?",
+    "confirm_via": "button",
+    "intents": [
+      "ec2_connectivity",
+      "ec2_security_group"
+    ],
+    "expected_tools": [
+      [
+        "ec2_get_instance",
+        "ec2_get_instance_status",
+        "ec2_list_instances"
+      ],
+      [
+        "ec2_get_security_group_rules"
+      ]
+    ],
+    "expected_identifiers": {
+      "instance_id": "{vm.instance_id}"
+    },
+    "expected_root_causes": [
+      "EC2_SG_SSH_BLOCKED"
+    ],
+    "expected_resolution": "ADD_INGRESS_RULE",
+    "post_condition": {
+      "type": "ingress_rule",
+      "group_id": "{vm.group_id}",
+      "port": 22,
+      "cidr": "198.51.100.7/32",
+      "present": true
+    }
+  },
+  {
+    "scenario_id": "CONV-DECLINED",
+    "service": "ec2",
+    "variation": "declined",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "queue-07",
+          "open_ports": [
+            80,
+            443
+          ]
+        }
+      }
+    ],
+    "user_message": "My ssh connection to queue-07 is refused.",
+    "user_facts": {
+      "instance": "queue-07",
+      "protocol": "ssh",
+      "source_cidr": "198.51.100.7"
+    },
+    "confirm_writes": false,
+    "intents": [
+      "ec2_connectivity",
+      "ec2_security_group"
+    ],
+    "expected_tools": [
+      [
+        "ec2_get_instance",
+        "ec2_get_instance_status",
+        "ec2_list_instances"
+      ],
+      [
+        "ec2_get_security_group_rules"
+      ]
+    ],
+    "expected_identifiers": {
+      "instance_id": "{vm.instance_id}"
+    },
+    "expected_root_causes": [
+      "EC2_SG_SSH_BLOCKED"
+    ],
+    "expected_resolution": "ADD_INGRESS_RULE",
+    "post_condition": {
+      "type": "ingress_rule",
+      "group_id": "{vm.group_id}",
+      "port": 22,
+      "cidr": "198.51.100.7/32",
+      "present": false
+    }
+  },
+  {
+    "scenario_id": "CONV-TWO-ISSUES",
+    "service": "ec2",
+    "variation": "two_issues",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "queue-07",
+          "state": "stopped",
+          "open_ports": [
+            80
+          ]
+        }
+      }
+    ],
+    "user_message": "I can't SSH into queue-07.",
+    "user_facts": {
+      "instance": "queue-07",
+      "protocol": "ssh"
+    },
+    "confirm_via": "button",
+    "intents": [
+      "ec2_instance_down",
+      "ec2_connectivity"
+    ],
+    "expected_tools": [
+      [
+        "ec2_get_instance",
+        "ec2_get_instance_status",
+        "ec2_list_instances"
+      ]
+    ],
+    "expected_identifiers": {
+      "instance_id": "{vm.instance_id}"
+    },
+    "expected_root_causes": [
+      "EC2_INSTANCE_STOPPED"
+    ],
+    "expected_resolution": "START_INSTANCE",
+    "post_condition": {
+      "type": "instance_state",
+      "instance_id": "{vm.instance_id}",
+      "states": [
+        "running",
+        "pending"
+      ]
+    }
+  },
+  {
+    "scenario_id": "CONV-CHANGED-PROBLEM",
+    "service": "ec2",
+    "variation": "changed_problem",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "worker-04",
+          "open_ports": [
+            80,
+            443
+          ]
+        }
+      }
+    ],
+    "preamble": "I have a problem with one of my S3 buckets.",
+    "user_message": "My ssh connection to worker-04 is refused.",
+    "user_facts": {
+      "instance": "worker-04",
+      "protocol": "ssh",
+      "source_cidr": "203.0.113.10"
+    },
+    "confirm_via": "button",
+    "intents": [
+      "ec2_connectivity",
+      "ec2_security_group"
+    ],
+    "expected_tools": [
+      [
+        "ec2_get_instance",
+        "ec2_get_instance_status",
+        "ec2_list_instances"
+      ],
+      [
+        "ec2_get_security_group_rules"
+      ]
+    ],
+    "expected_identifiers": {
+      "instance_id": "{vm.instance_id}"
+    },
+    "expected_root_causes": [
+      "EC2_SG_SSH_BLOCKED"
+    ],
+    "expected_resolution": "ADD_INGRESS_RULE",
+    "post_condition": {
+      "type": "ingress_rule",
+      "group_id": "{vm.group_id}",
+      "port": 22,
+      "cidr": "203.0.113.10/32",
+      "present": true
+    }
+  },
+  {
+    "scenario_id": "CONV-CORRECTED-DETAIL",
+    "service": "iam",
+    "variation": "corrected",
+    "fixture": [
+      {
+        "name": "iam_principal",
+        "handle": "who",
+        "params": {
+          "kind": "user",
+          "name": "erin",
+          "allow": [
+            "s3:ListAllMyBuckets"
+          ],
+          "deny": []
+        }
+      }
+    ],
+    "user_message": "My user is not authorized to do something in AWS.",
+    "user_facts": {
+      "principal": [
+        "intern-9",
+        "user erin"
+      ],
+      "iam_action": "dynamodb:PutItem"
+    },
+    "intents": [
+      "iam_access_denied",
+      "iam_policy_problem"
+    ],
+    "expected_tools": [
+      [
+        "iam_check_permission"
+      ]
+    ],
+    "expected_identifiers": {
+      "iam_user": "erin",
+      "iam_action": "dynamodb:PutItem"
+    },
+    "expected_root_causes": [
+      "IAM_PERMISSION_MISSING"
+    ],
+    "expected_resolution": "GRANT_IAM_PERMISSION"
+  },
+  {
+    "scenario_id": "CONV-LAMBDA-FIX",
+    "service": "lambda",
+    "variation": "missing_details",
+    "fixture": [
+      {
+        "name": "iam_principal",
+        "handle": "role",
+        "params": {
+          "kind": "role",
+          "name": "pdf-builder-role",
+          "allow": [
+            "logs:*"
+          ]
+        }
+      },
+      {
+        "name": "lambda_function",
+        "handle": "fn",
+        "params": {
+          "name": "pdf-builder",
+          "role_arn": "{role.arn}",
+          "timeout": 3,
+          "log_lines": [
+            "START RequestId: 7c1f Version: $LATEST",
+            "Processing batch",
+            "2026-10-01T10:00:03.004Z 7c1f Task timed out after 3.00 seconds",
+            "END RequestId: 7c1f"
+          ],
+          "invocations": 10,
+          "errors": 10
+        }
+      }
+    ],
+    "user_message": "My lambda keeps timing out.",
+    "user_facts": {
+      "function": "pdf-builder",
+      "timeout_seconds": "60"
+    },
+    "confirm_via": "button",
+    "intents": [
+      "lambda_timeout",
+      "lambda_invocation_failure"
+    ],
+    "expected_tools": [
+      [
+        "lambda_get_function_logs"
+      ],
+      [
+        "lambda_get_function_configuration"
+      ]
+    ],
+    "expected_identifiers": {
+      "function_name": "pdf-builder"
+    },
+    "expected_root_causes": [
+      "LAMBDA_TIMEOUT_TOO_LOW"
+    ],
+    "expected_resolution": "INCREASE_LAMBDA_TIMEOUT",
+    "post_condition": {
+      "type": "lambda_timeout",
+      "function_name": "{fn.name}",
+      "seconds": 60
+    }
+  },
+  {
+    "scenario_id": "CONV-IAM-STEP-BY-STEP",
+    "service": "iam",
+    "variation": "missing_details",
+    "fixture": [
+      {
+        "name": "iam_principal",
+        "handle": "app",
+        "params": {
+          "kind": "role",
+          "name": "app-role",
+          "allow": [
+            "logs:*"
+          ]
+        }
+      },
+      {
+        "name": "iam_principal",
+        "handle": "data",
+        "params": {
+          "kind": "role",
+          "name": "data-role",
+          "allow": [
+            "ec2:StartInstances"
+          ]
+        }
+      }
+    ],
+    "user_message": "My application gets access denied from IAM.",
+    "user_facts": {
+      "principal": "role app-role",
+      "iam_action": "ec2:StartInstances"
+    },
+    "intents": [
+      "iam_access_denied",
+      "iam_policy_problem"
+    ],
+    "expected_tools": [
+      [
+        "iam_check_permission"
+      ]
+    ],
+    "expected_identifiers": {
+      "role_name": "app-role",
+      "iam_action": "ec2:StartInstances"
+    },
+    "expected_root_causes": [
+      "IAM_WRONG_ROLE"
+    ],
+    "expected_resolution": "USE_CORRECT_ROLE"
+  },
+  {
+    "scenario_id": "CONV-ALARM",
+    "service": "cloudwatch",
+    "variation": "missing_details",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "queue-07",
+          "open_ports": [
+            22
+          ]
+        }
+      },
+      {
+        "name": "cpu_alarm",
+        "handle": "alarm",
+        "params": {
+          "name": "queue-07-high-cpu",
+          "instance_id": "{vm.instance_id}",
+          "cpu_percent": null
+        }
+      }
+    ],
+    "user_message": "My alarm shows INSUFFICIENT_DATA.",
+    "user_facts": {
+      "alarm": "queue-07-high-cpu"
+    },
+    "intents": [
+      "cloudwatch_alarm",
+      "cloudwatch_metric"
+    ],
+    "expected_tools": [
+      [
+        "cloudwatch_get_alarm"
+      ]
+    ],
+    "expected_identifiers": {
+      "alarm_name": "queue-07-high-cpu"
+    },
+    "expected_root_causes": [
+      "CW_ALARM_INSUFFICIENT_DATA"
+    ],
+    "expected_resolution": "CHECK_METRIC_SOURCE"
+  },
+  {
+    "scenario_id": "CONV-S3-DETAILS",
+    "service": "s3",
+    "variation": "missing_details",
+    "fixture": [
+      {
+        "name": "s3_bucket",
+        "handle": "bucket",
+        "params": {
+          "name": "invoice-store",
+          "objects": [
+            "images/logo.png"
+          ],
+          "deny_downloads": true
+        }
+      },
+      {
+        "name": "iam_user",
+        "handle": "user",
+        "params": {
+          "name": "alice",
+          "s3_access": true
+        }
+      }
+    ],
+    "user_message": "I get AccessDenied when I download from my S3 bucket.",
+    "user_facts": {
+      "bucket": "invoice-store",
+      "iam_user": "alice",
+      "object_key": "images/logo.png"
+    },
+    "intents": [
+      "s3_access_denied",
+      "s3_download_failure",
+      "s3_upload_failure"
+    ],
+    "expected_tools": [
+      [
+        "s3_check_bucket_access"
+      ]
+    ],
+    "expected_identifiers": {
+      "bucket": "invoice-store",
+      "iam_user": "alice"
+    },
+    "expected_root_causes": [
+      "S3_BUCKET_POLICY_DENY"
+    ],
+    "expected_resolution": "UPDATE_BUCKET_POLICY"
+  },
+  {
+    "scenario_id": "CONV-UNSUPPORTED",
+    "service": "none",
+    "variation": "unsupported",
+    "fixture": [
+      {
+        "name": "ec2_instance",
+        "handle": "vm",
+        "params": {
+          "name": "web-01",
+          "open_ports": [
+            80
+          ]
+        }
+      },
+      {
+        "name": "s3_bucket",
+        "handle": "bucket",
+        "params": {
+          "name": "acme-reports",
+          "objects": [
+            "2026/q3-summary.csv"
+          ]
+        }
+      }
+    ],
+    "user_message": "Can you configure my Azure cluster?",
+    "intents": [
+      "unknown"
+    ],
+    "out_of_domain": true
+  }
+]
